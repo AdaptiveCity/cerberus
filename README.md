@@ -31,11 +31,23 @@ Run:
 `curl https://getmic.ro | bash`  
 `sudo mv micro /usr/bin`  
 
+### Install Coral Accelerator Libraries
+With the Accelerator unplugged:
+```
+echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install libedgetpu1-std
+```
+Then plug in the Coral Accelerator:
+`sudo apt-get install python3-pycoral`
+
 ### Add `lt1` user 
 
 `sudo adduser lt1`  
 Add user to the `video` group so we can access the camera:  
-As root: `sudo usermod -a -G video lt1`  
+As root:  
+`sudo usermod -a -G video lt1`  
 
 Later change write access using `chown` or `chmod` if necessary.  
 
@@ -57,17 +69,6 @@ Start the `venv`:
 
 Run:   
 `python app.py`
-
-### Install Coral Accelerator Libraries
-With the Accelerator unplugged:
-```
-echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | sudo tee /etc/apt/sources.list.d/coral-edgetpu.list
-curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-sudo apt-get update
-sudo apt-get install libedgetpu1-std
-```
-Then plug in the Coral Accelerator:
-`sudo apt-get install python3-pycoral`
 
 ## Set up Reverse SSH to *tfc-app9*
 The following instructions to allow SSH access to **lt1-rpiX**, via *tfc-app9* port XXXX.
