@@ -124,7 +124,7 @@ Enter command:
 
 That should open a reverse SSH tunnel to *tfc-app9* and you should be able to log on to **lt1-rpiX** from *tfc-app9* with the command:
 
- `ssh (user@)localhost -p XXXX`.
+ `ssh (user@)localhost -p XXXX`. From here on you can SSH as `lt1`.  
 
 Assuming that works, you should add the tunnel command to your **lt1-rpiX** `crontab -e`:
 
