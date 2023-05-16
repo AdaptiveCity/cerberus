@@ -84,7 +84,7 @@ SSH from your local machine as `sudo` (e.g. <span style="color:blue">ab1234</spa
 On **lt1-rpiX**:
 
 ```
-sudo su lt1
+sudo su lt1 (OR SUDO??)
 ssh-keygen -t rsa
 ```
 
@@ -120,7 +120,7 @@ In **lt1-rpiX** console:
 Enter command:
 
 `micro ijl20_toolz/rssh.sh`  and replace *ijl20* with <span style="color:blue">ab1234</span>
-ijl20_toolz/rssh.sh XXXX
+`ijl20_toolz/rssh.sh XXXX`
 
 That should open a reverse SSH tunnel to *tfc-app9* and you should be able to log on to **lt1-rpiX** from *tfc-app9* with the command:
 
