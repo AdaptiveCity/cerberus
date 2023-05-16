@@ -13,10 +13,14 @@ This is a guide  on how to set up a privacy preseving camera.
 Once the Pi is on, run:  
 `sudo apt update && sudo apt upgrade -y`  
 
-### Enable VNC Interface:
+### Enable interfaces:
 Run: `sudo raspi-config` 
-Then *Interface -> Enable VNC*  
-Also make sure `legacy Pi camera support` is `off`.
+#### SSH
+*Interface -> Enable SSH*
+#### VNC (optional)
+Then *Interface -> Enable VNC*
+#### Camera
+Make sure `legacy Pi camera support` is `off`.
 
 ### Install Virtualenv Package
 Run:   
