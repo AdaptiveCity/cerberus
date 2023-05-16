@@ -18,7 +18,7 @@ class FaceDetector:
             # Import and instantiate the YOLOFace model here
             pass
         elif model_name == "haarcascade":
-            self.model = cv2.CascadeClassifier("./haarcascade_frontalface_default.xml")
+            self.model = cv2.CascadeClassifier("./backends/haarcascade_frontalface_default.xml")
         else:
             raise ValueError("Invalid model name")
 
