@@ -96,7 +96,7 @@ Run:
 
 *Copy key to clipboard*
 
-SSH to *tfc-app9* from **lt1-rpiX**
+SSH to *tfc-app9* as sudo  
 
 On *tfc-app9*:
 
