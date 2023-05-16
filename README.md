@@ -25,6 +25,7 @@ Make sure `legacy Pi camera support` is `off`.
 ### Install Virtualenv Package
 Run:   
 `sudo pip install virtualenv`  
+`python -m pip install pip --upgrade`   
 
 ### Install Micro
 Run:  
@@ -132,6 +133,25 @@ Assuming that works, you should add the tunnel command to your **lt1-rpiX** `cro
 
 That should finalise your reverse ssh setup. 
 
+## Download this repo:
+
+Runs core privacy preserving face detection software.  
+
+Clone the repo:  
+`git clone https://github.com/AdaptiveCity/cerberus.git`  
+
+Open the directory:    
+`cd cerberus`  
+
+Create a `venv` and enable Picamera2 library from within the venv:    
+`virtualenv venv --system-site-packages`  
+
+Start the `venv`:  
+`source venv/bin/activate`  
+`pip install -r requirements.txt`  
+
+Run:   
+`python app.py`
 
 ## Camera Tests
 Several other useful commands to now:
