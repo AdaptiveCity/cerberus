@@ -27,6 +27,11 @@ Run:
 `curl https://getmic.ro | bash`  
 `sudo mv micro /usr/bin`  
 
+### Add `lt1` user 
+
+`sudo adduser lt1`  
+Later change write access using `chown`
+
 ### Set up Flask Repo
 Sets up a temporary backdoor access for debugging.
 
@@ -56,11 +61,6 @@ sudo apt-get install libedgetpu1-std
 ```
 Then plug in the Coral Accelerator:
 `sudo apt-get install python3-pycoral`
-
-### Add `lt1` user 
-
-`sudo adduser lt1`  
-Later change write access using `chmod`
 
 ## Set up Reverse SSH to *tfc-app9*
 The following instructions to allow SSH access to **lt1-rpiX**, via *tfc-app9* port XXXX.
