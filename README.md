@@ -32,6 +32,9 @@ Run:
 `curl https://getmic.ro | bash`  
 `sudo mv micro /usr/bin`  
 
+### Install cv2 dependencies
+`sudo apt-get install libatlas-base-dev`  
+
 ### Install Coral Accelerator Libraries
 With the Accelerator unplugged:
 ```
