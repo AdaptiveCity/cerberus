@@ -139,6 +139,21 @@ Some subset of the same params (no framerate, could have much smaller preview) c
 `libcamera-still --timelapse 1000 --output test.jpg`
 Which will continuously update a file 'test.jpg' with a 1000 millisecond, which could be served with Flask.  
 
+## Other additional commands:  
+### Change the device's hostname:
+In CLI:  
+`hostnamectl` - shows the hostname of the server  
+`hostnamectl set-hostname 'NEW_HOSTNAME'` - sets the server name to NEW_HOSTNAME  
+`hostnamectl` - verify that the hostname has changed  
+
+### Change the Wifi Password  
+The wireless configuration on the Raspberry Pi is located in /etc/wpa_supplicant. 
+
+`sudo nano /etc/wpa_supplicant/wpa_supplicant.conf` - update the WPA changes  
+`sudo reboot` - reboots the device, should boot with WiFi connected
+
+
+
 
 
 
