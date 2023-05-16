@@ -34,7 +34,10 @@ Run:
 ### Add `lt1` user 
 
 `sudo adduser lt1`  
-Later change write access using `chown`
+Add user to the `video` group so we can access the camera:  
+As root: `sudo usermod -a -G video lt1`  
+
+Later change write access using `chown` or `chmod` if necessary.  
 
 ### Set up Flask Repo
 Sets up a temporary backdoor access for debugging.
