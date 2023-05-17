@@ -160,7 +160,8 @@ Create a `venv` and enable Picamera2 library from within the venv:
 
 Start the `venv`:  
 `source venv/bin/activate`  
-`pip install -r requirements.txt`  
+`pip install opencv-python==4.6.0.66`  
+`pip install numpy --upgrade`  
 
 Run:   
 `python app.py`
