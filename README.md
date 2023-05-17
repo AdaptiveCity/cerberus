@@ -57,11 +57,14 @@ Later change write access using `chown` or `chmod` if necessary.
 
 ### Add and `acp` directory
 
-In `/media` as root do `mkdir acp`  
+In `/media` as root do `sudo mkdir acp`  
 Then `sudo chown -R lt1 ./acp/`  
 
 ### Set up Flask Repo
 Sets up a temporary backdoor access for debugging.
+
+Change the user to `lt1`:
+`su lt`  
 
 Clone the repo:  
 `git clone https://github.com/jb2328/pi-stillframe.git`  
