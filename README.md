@@ -139,13 +139,13 @@ That should open a reverse SSH tunnel to *tfc-app9* and you should be able to lo
 
  `ssh (user@)localhost -p XXXX`. From here on you can SSH as `lt1`.  
 
-Move the `ijl20_toolz` directory to `lt1` home dir:
+<!-- Move the `ijl20_toolz` directory to `lt1` home dir:
 
-`mv ijl20_toolz ../lt1/`  
+`mv ijl20_toolz ../lt1/`   -->
 
 Assuming that works, you should add the tunnel command to your **lt1-rpiX** `crontab -e`:
 
-`55 * * * * /home/lt1/ijl20_toolz/rssh.sh XXXX`
+`55 * * * * /home/ab1234/ijl20_toolz/rssh.sh XXXX`
 
 That should finalise your reverse ssh setup. 
 
