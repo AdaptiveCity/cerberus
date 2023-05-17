@@ -94,8 +94,8 @@ SSH from your local machine as `sudo` (e.g. <span style="color:blue">ab1234</spa
 
 On **lt1-rpiX**:
 
+as `root`:  
 ```
-sudo su lt1 (OR SUDO??)
 ssh-keygen -t rsa
 ```
 
@@ -103,7 +103,6 @@ Hit `enter`
 
 Run: 
 `cat ~/.ssh/id_rsa.pub`
-
 
 *Copy key to clipboard*
 
