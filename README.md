@@ -24,8 +24,8 @@ Make sure `legacy Pi camera support` is `off`.
 
 ### Install Virtualenv Package
 Run:   
-`sudo pip install virtualenv`  
 `python -m pip install pip --upgrade`   
+`sudo pip install virtualenv`  
 
 ### Install Micro
 Run:  
