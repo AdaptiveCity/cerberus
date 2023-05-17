@@ -63,8 +63,8 @@ Then `sudo chown -R lt1 ./acp/`
 ### Set up Flask Repo
 Sets up a temporary backdoor access for debugging.
 
-Change the user to `lt1`:
-`su lt`  
+Change the user to `lt1`:  
+`su lt1`  
 
 Clone the repo:  
 `git clone https://github.com/jb2328/pi-stillframe.git`  
@@ -74,7 +74,6 @@ Open the directory:
 
 Create a `venv` and enable Picamera2 library from within the venv:    
 `virtualenv venv --system-site-packages`  
-`python -m pip install pip --upgrade`  
 
 Start the `venv`:  
 `source venv/bin/activate`  
