@@ -131,6 +131,7 @@ Enter command:
 
 `micro ijl20_toolz/rssh.sh`  
 and replace *ijl20* with <span style="color:blue">ab1234</span>  
+
 Then run (XXXX is a port number):  
 `ijl20_toolz/rssh.sh XXXX`  
 
