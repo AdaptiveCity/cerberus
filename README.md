@@ -24,12 +24,16 @@ Make sure `legacy Pi camera support` is `off`.
 
 ### Install Virtualenv Package
 Run:   
+`python -m pip install pip --upgrade`   
 `sudo pip install virtualenv`  
 
 ### Install Micro
 Run:  
 `curl https://getmic.ro | bash`  
 `sudo mv micro /usr/bin`  
+
+### Install cv2 dependencies
+`sudo apt-get install libatlas-base-dev`  
 
 ### Install Coral Accelerator Libraries
 With the Accelerator unplugged:
@@ -51,8 +55,16 @@ As root:
 
 Later change write access using `chown` or `chmod` if necessary.  
 
+### Add and `acp` directory
+
+In `/media` as root do `sudo mkdir acp`  
+Then `sudo chown -R lt1 ./acp/`  
+
 ### Set up Flask Repo
 Sets up a temporary backdoor access for debugging.
+
+Change the user to `lt1`:  
+`su lt1`  
 
 Clone the repo:  
 `git clone https://github.com/jb2328/pi-stillframe.git`  
@@ -62,7 +74,6 @@ Open the directory:
 
 Create a `venv` and enable Picamera2 library from within the venv:    
 `virtualenv venv --system-site-packages`  
-`python -m pip install pip --upgrade`  
 
 Start the `venv`:  
 `source venv/bin/activate`  
@@ -83,8 +94,8 @@ SSH from your local machine as `sudo` (e.g. <span style="color:blue">ab1234</spa
 
 On **lt1-rpiX**:
 
+as `root`:  
 ```
-sudo su lt1
 ssh-keygen -t rsa
 ```
 
@@ -93,10 +104,9 @@ Hit `enter`
 Run: 
 `cat ~/.ssh/id_rsa.pub`
 
-
 *Copy key to clipboard*
 
-SSH to *tfc-app9* from **lt1-rpiX**
+SSH to *tfc-app9* as sudo  
 
 On *tfc-app9*:
 
@@ -119,19 +129,46 @@ In **lt1-rpiX** console:
 
 Enter command:
 
-`micro ijl20_toolz/rssh.sh`  and replace *ijl20* with <span style="color:blue">ab1234</span>
-ijl20_toolz/rssh.sh XXXX
+`micro ijl20_toolz/rssh.sh`  
+and replace *ijl20* with <span style="color:blue">ab1234</span>  
+
+Then run (XXXX is a port number):  
+`ijl20_toolz/rssh.sh XXXX`  
 
 That should open a reverse SSH tunnel to *tfc-app9* and you should be able to log on to **lt1-rpiX** from *tfc-app9* with the command:
 
- `ssh (user@)localhost -p XXXX`.
+ `ssh (user@)localhost -p XXXX`. From here on you can SSH as `lt1`.  
+
+<!-- Move the `ijl20_toolz` directory to `lt1` home dir:
+
+`mv ijl20_toolz ../lt1/`   -->
 
 Assuming that works, you should add the tunnel command to your **lt1-rpiX** `crontab -e`:
 
-`55 * * * * /home/lt1/ijl20_toolz/rssh.sh XXXX`
+`55 * * * * /home/ab1234/ijl20_toolz/rssh.sh XXXX`
 
 That should finalise your reverse ssh setup. 
 
+## Download this repo:
+
+Runs core privacy preserving face detection software.  
+
+Clone the repo:  
+`git clone https://github.com/AdaptiveCity/cerberus.git`  
+
+Open the directory:    
+`cd cerberus`  
+
+Create a `venv` and enable Picamera2 library from within the venv:    
+`virtualenv venv --system-site-packages`  
+
+Start the `venv`:  
+`source venv/bin/activate`  
+`pip install opencv-python==4.6.0.66`  
+`pip install numpy --upgrade`  
+
+Run:   
+`python app.py`
 
 ## Camera Tests
 Several other useful commands to now:
