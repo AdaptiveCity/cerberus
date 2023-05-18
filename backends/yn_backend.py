@@ -10,6 +10,10 @@ class YNBackend:
     self.detector.setInputSize((w,h))
     _, faces = self.detector.detect(img)
     out = []
+
+    if faces is None or len(faces) == 0:
+        return None  # Return an empty list if no faces are detected
+
     for f in faces:
       out.append({'confidence': float(f[-1]),
                   'x': int(f[0]), 'y': int(f[1]), 'w': int(f[2]), 'h': int(f[3])})
