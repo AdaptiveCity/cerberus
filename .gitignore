@@ -124,3 +124,5 @@ ENV/
 secrets.py
 secrets
 secrets.txt
+img
+debug/.mypy_cache
