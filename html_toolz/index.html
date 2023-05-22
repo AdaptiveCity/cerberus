@@ -1,0 +1,236 @@
+<html>
+<head>
+
+<style>
+#workarea {
+    width: 2592px;
+    height: 1944px;
+    position: relative;
+}
+
+#photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+</style>
+
+<script>
+
+// This class draws "arrows" between "photo" coordinates and "overlay" coordinates
+// The idea is to build a transformation between the coordinate spaces
+class ImgTransform {
+    constructor() {
+        let parent = this;
+        parent.workarea_el = document.getElementById("workarea")
+        parent.svg_el = document.getElementById("svg");
+
+        parent.workarea_el.addEventListener('mousedown', (e) => { parent.img_mouse_down(parent, e); });
+        parent.workarea_el.addEventListener('mousemove', (e) => { parent.img_mouse_move(parent, e); });
+        parent.workarea_el.addEventListener('mouseup', (e) => { parent.img_mouse_up(parent, e); });
+
+        document.getElementById("button_back").addEventListener("click", (e) => { parent.button_back(parent, e); });
+        document.getElementById("button_download").addEventListener("click", (e) => { parent.button_download(parent, e); });
+        document.getElementById("button_reset").addEventListener("click", (e) => { parent.button_reset(parent, e); });
+
+        parent.mouse_down = false;      // Boolean keeping track of whether the mouse is down for arrow drawing
+        parent.lines = [];
+
+        parent.photo = {
+            name: "lt1-rpi1-20221025-113048-6350.jpg",
+            width: 2592,
+            height: 1944
+        };
+
+        parent.overlay = {
+            name: "LT1_seating.png",
+            width: 1312,
+            height: 1210
+        };
+
+    }
+
+    // *********************************
+    // ARROW DRAW MOUSE EVENTS
+
+    img_mouse_down(parent, e) {
+        console.log("Mouse down",e);
+        parent.mouse_down = true;
+
+        let rect = parent.workarea_el.getBoundingClientRect();
+
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+
+        let line_el = document.createElementNS("http://www.w3.org/2000/svg", "line")
+        line_el.setAttribute("stroke","#ff0000");
+        line_el.setAttribute("stroke-width","3");
+        line_el.setAttribute("x1", x);
+        line_el.setAttribute("y1", y);
+        line_el.setAttribute("x2", x);
+        line_el.setAttribute("y2", y);
+        line_el.setAttribute("marker-start","url(#dot)");
+        line_el.setAttribute("marker-end","url(#arrow)");
+        parent.svg_el.appendChild(line_el);
+        parent.lines.push(line_el);
+    }
+
+    img_mouse_move(parent, e) {
+        if (parent.mouse_down) {
+            //console.log("Mouse move",e);
+            // get offsets for mouse clientX/Y position in workarea
+            let rect = parent.workarea_el.getBoundingClientRect();
+
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            let current_line_index = parent.lines.length-1;
+            parent.lines[current_line_index].setAttribute("x2", x);
+            parent.lines[current_line_index].setAttribute("y2", y);
+        }
+
+    }
+
+    img_mouse_up(parent, e) {
+        //console.log("Mouse up",e);
+        parent.mouse_down = false;
+        console.log("Added line index=",parent.lines.length-1);
+    }
+
+    // *********************************
+    // BUTTON CLICK EVENTS
+
+    button_back(parent, e) {
+        console.log("button_back");
+        // Delete last line
+        if (parent.lines.length > 0) {
+            console.log("Removing line index",parent.lines.length-1);
+            parent.lines[parent.lines.length-1].remove(); // Remove from SVG display
+            parent.lines.splice(-1); // pop reference from array
+        }
+    }
+
+    button_download(parent, e) {
+        console.log("button_download");
+        const file = new File(parent.make_file(parent), 'transform.json', {
+            type: 'application/json',
+        });
+
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(file)
+
+        link.href = url
+        link.download = file.name
+        document.body.appendChild(link)
+        link.click()
+
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+    }
+
+    button_reset(parent, e) {
+        console.log("button_reset");
+        for (let i=0; i < parent.lines.length; i++) {
+            parent.lines[i].remove(); // Remove from SVG display
+        }
+        parent.lines = new Array();
+    }
+
+    // *********************************
+    // Make the transform.json file
+
+    make_file(parent) {
+        let s = new Array();
+        s.push('{\n');
+
+        s.push('  "input_image": { "name": "'+parent.photo.name+'",\n');
+        s.push('                   "width": '+parent.photo.width+',\n');
+        s.push('                   "height": '+parent.photo.height+'\n');
+        s.push('  },\n');
+
+        s.push('  "output_image": { "name": "'+parent.overlay.name+'",\n');
+        s.push('                   "width": '+parent.overlay.width+',\n');
+        s.push('                   "height": '+parent.overlay.height+'\n');
+        s.push('  },\n');
+
+        // Now add points
+        s.push('  "points": [\n');
+        for (let i=0; i<parent.lines.length; i++) {
+            // Add each line as { x_in, y_in, x_out, y_out } (with comma after if not last line)
+            s.push(parent.make_point(parent.lines[i])+ (i < parent.lines.length-1 ? ',\n' : '\n'));
+        }
+        s.push('  ]\n');
+
+        s.push('}\n');
+
+        return s;
+    }
+
+    make_point(line) {
+        let point = "    { "
+        point += '"x_in": '+line.getAttribute("x1")+', ';
+        point += '"y_in": '+line.getAttribute("y1")+', ';
+        point += '"x_out": '+line.getAttribute("x2")+', ';
+        point += '"y_out": '+line.getAttribute("y2")+' }';
+
+        return point;
+    }
+
+} // End of class ImgTransform
+</script>
+</head>
+<body>
+
+<div id="buttons">
+    <button id="button_reset">reset</button>
+    <button id="button_back">back</button>
+    <button id="button_download">download</button>
+</div>
+
+<div id="workarea">
+    <img id="photo" src="images/lt1-rpi1-20221111-121015-9850.jpg"/>
+    <img id="overlay" src="images/LT1_seating.png"/>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" width="2592" height="1944" viewBox="0 0 2592 1944" >
+        <defs>
+            <!-- arrowhead marker definition -->
+            <marker
+                    id="arrow"
+                    viewBox="0 0 10 10"
+                    refX="5"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="red"/>
+            </marker>
+            <!-- simple dot marker definition -->
+            <marker
+                    id="dot"
+                    viewBox="0 0 10 10"
+                    refX="5"
+                    refY="5"
+                    markerWidth="5"
+                    markerHeight="5">
+                <circle cx="5" cy="5" r="5" fill="red" />
+            </marker>
+        <defs>
+    </svg>
+</div>
+
+<script>
+    var img_transform = new ImgTransform();
+</script>
+</body>
+</html>

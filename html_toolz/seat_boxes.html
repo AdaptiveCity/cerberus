@@ -1,0 +1,218 @@
+<html>
+<head>
+
+<style>
+#workarea {
+    width: 2592px;
+    height: 1944px;
+    position: relative;
+}
+
+#photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+</style>
+
+<script>
+
+// This class draws "arrows" between "photo" coordinates and "overlay" coordinates
+// The idea is to build a transformation between the coordinate spaces
+class DrawBoxes {
+    constructor() {
+        let parent = this;
+        parent.workarea_el = document.getElementById("workarea")
+        parent.svg_el = document.getElementById("svg");
+
+        parent.workarea_el.addEventListener('mousedown', (e) => { parent.img_mouse_down(parent, e); });
+        parent.workarea_el.addEventListener('mousemove', (e) => { parent.img_mouse_move(parent, e); });
+        parent.workarea_el.addEventListener('mouseup', (e) => { parent.img_mouse_up(parent, e); });
+
+        document.getElementById("button_back").addEventListener("click", (e) => { parent.button_back(parent, e); });
+        document.getElementById("button_download").addEventListener("click", (e) => { parent.button_download(parent, e); });
+        document.getElementById("button_reset").addEventListener("click", (e) => { parent.button_reset(parent, e); });
+
+        parent.mouse_down = false;      // Boolean keeping track of whether the mouse is down for arrow drawing
+        parent.boxes = [];
+
+        parent.photo = {
+            name: "lt1_empty_2592x1944.jpg",
+            width: 2592,
+            height: 1944
+        };
+
+    }
+
+    // *********************************
+    // ARROW DRAW MOUSE EVENTS
+
+    img_mouse_down(parent, e) {
+        console.log("Mouse down",e);
+        parent.mouse_down = true;
+
+        let work_rect = parent.workarea_el.getBoundingClientRect();
+
+        let x = e.clientX - work_rect.left;
+        let y = e.clientY - work_rect.top;
+
+        let rect_el = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+
+        rect_el.setAttribute("stroke","#ff0000");
+        rect_el.setAttribute("stroke-width","2");
+        rect_el.setAttribute("fill","none");
+        rect_el.setAttribute("x", x);
+        rect_el.setAttribute("y", y);
+        rect_el.setAttribute("width", 5);
+        rect_el.setAttribute("height", 5);
+
+        parent.svg_el.appendChild(rect_el);
+        parent.boxes.push(rect_el);
+    }
+
+    img_mouse_move(parent, e) {
+        if (parent.mouse_down) {
+            //console.log("Mouse move",e);
+            // get offsets for mouse clientX/Y position in workarea
+            let rect = parent.workarea_el.getBoundingClientRect();
+
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            let current_rect_index = parent.boxes.length-1;
+            let current_rect = parent.boxes[current_rect_index];
+            let width = x - current_rect.getAttribute('x');
+            let height = y - current_rect.getAttribute('y');
+            current_rect.setAttribute("width", Math.max(0,width));
+            current_rect.setAttribute("height", Math.max(0,height));
+        }
+
+    }
+
+    img_mouse_up(parent, e) {
+        //console.log("Mouse up",e);
+        parent.mouse_down = false;
+        console.log("Added line index=",parent.boxes.length-1);
+        let seat_id = prompt("Enter seat_id:");
+        if (seat_id == null) {
+            parent.remove_last_box(parent);
+        } else {
+            parent.boxes[parent.boxes.length-1].setAttribute("data-seat_id",seat_id);
+        }
+
+    }
+
+    remove_last_box(parent) {
+        // Delete last line
+        if (parent.boxes.length > 0) {
+            console.log("Removing line index",parent.boxes.length-1);
+            parent.boxes[parent.boxes.length-1].remove(); // Remove from SVG display
+            parent.boxes.splice(-1); // pop reference from array
+        }
+    }
+
+    // *********************************
+    // BUTTON CLICK EVENTS
+
+    button_back(parent, e) {
+        console.log("button_back");
+        parent.remove_last_box(parent);
+    }
+
+    button_download(parent, e) {
+        console.log("button_download");
+        const file = new File(parent.make_file(parent), 'boxes.json', {
+            type: 'application/json',
+        });
+
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(file);
+
+        link.href = url;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }
+
+    button_reset(parent, e) {
+        console.log("button_reset");
+        for (let i=0; i < parent.boxes.length; i++) {
+            parent.boxes[i].remove(); // Remove from SVG display
+        }
+        parent.boxes = new Array();
+    }
+
+    // *********************************
+    // Make the transform.json file
+
+    make_file(parent) {
+        let s = new Array();
+        s.push('{\n');
+
+        s.push('  "input_image": { "name": "'+parent.photo.name+'",\n');
+        s.push('                   "width": '+parent.photo.width+',\n');
+        s.push('                   "height": '+parent.photo.height+'\n');
+        s.push('  },\n');
+
+        // Now add seat box entries
+        s.push('  "seats": [\n');
+        for (let i=0; i<parent.boxes.length; i++) {
+            // Add each line as { x_in, y_in, x_out, y_out } (with comma after if not last line)
+            s.push(parent.make_box(i, parent.boxes[i])+ (i < parent.boxes.length-1 ? ',\n' : '\n'));
+        }
+        s.push('  ]\n');
+
+        s.push('}\n');
+
+        return s;
+    }
+
+    make_box(i,rect_el) {
+        let box = "    { ";
+        box += '"seat_id":  "'+rect_el.getAttribute("data-seat_id")+'", ';
+        box += '"index": '+i.toFixed(0)+', ';
+        box += '"x": '+parseFloat(rect_el.getAttribute("x")).toFixed(0)+', ';
+        box += '"y": '+parseFloat(rect_el.getAttribute("y")).toFixed(0)+', ';
+        box += '"width": '+parseFloat(rect_el.getAttribute("width")).toFixed(0)+', ';
+        box += '"height": '+parseFloat(rect_el.getAttribute("height")).toFixed(0)+' }';
+
+        return box;
+    }
+
+} // End of class ImgTransform
+</script>
+</head>
+<body>
+
+<div id="buttons">
+    <button id="button_reset">reset</button>
+    <button id="button_back">back</button>
+    <button id="button_download">download</button>
+</div>
+
+<div id="workarea">
+    <img id="photo" src="images/lt1_empty_2592x1944.jpg"/>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" width="2592" height="1944" viewBox="0 0 2592 1944" >
+    </svg>
+</div>
+
+<script>
+    var draw_boxes = new DrawBoxes();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "input_image": { "name": "images/cerberus_middle_empty.jpg",
+                   "width": 4056,
+                   "height": 3040
+  },
+  "seats": [
+    { "seat_id":  "mb5", "index": 0, "x": 1104, "y": 2104, "width": 304, "height": 388 }
+  ]
+}

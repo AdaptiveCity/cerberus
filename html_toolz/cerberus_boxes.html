@@ -1,0 +1,385 @@
+<html>
+<head>
+
+<style>
+#workarea {
+    position: relative;
+}
+
+#photo {
+    margin: 0;
+}
+
+#svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+#svg_overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+text {
+    font-family: sans;
+    /* font-size: 20px; */
+}
+</style>
+
+<script>
+
+// This class draws "arrows" between "photo" coordinates and "overlay" coordinates
+// The idea is to build a transformation between the coordinate spaces
+class DrawBoxes {
+    constructor() {
+        let parent = this;
+        // workarea is the box containing the photo background and the SVG layers (boxes and labels)
+        parent.workarea_el = document.getElementById("workarea")
+        parent.photo_el = document.getElementById("photo");
+        parent.svg_el = document.getElementById("svg"); // boxes
+        parent.overlay_el = document.getElementById("svg_overlay"); // box seat_id text labels
+
+        parent.workarea_el.addEventListener('mousedown', (e) => { parent.img_mouse_down(parent, e); });
+        parent.workarea_el.addEventListener('mousemove', (e) => { parent.img_mouse_move(parent, e); });
+        parent.workarea_el.addEventListener('mouseup', (e) => { parent.img_mouse_up(parent, e); });
+
+        // Top UI menu elements
+        document.getElementById("button_back").addEventListener("click", (e) => { parent.button_back(parent, e); });
+        document.getElementById("button_download").addEventListener("click", (e) => { parent.button_download(parent, e); });
+        document.getElementById("button_reset").addEventListener("click", (e) => { parent.button_reset(parent, e); });
+        document.getElementById("button_left").addEventListener("click", (e) => { parent.button_left(parent, e); });
+        document.getElementById("button_middle").addEventListener("click", (e) => { parent.button_middle(parent, e); });
+        document.getElementById("button_right").addEventListener("click", (e) => { parent.button_right(parent, e); });
+
+        parent.load_el = document.getElementById("button_load");
+        parent.load_el.addEventListener("change", (e) => { parent.button_load(parent, e); });
+
+        document.getElementById("button_plus").addEventListener("click", (e) => { parent.button_plus(parent, e); });
+        document.getElementById("button_minus").addEventListener("click", (e) => { parent.button_minus(parent, e); });
+
+        parent.scale_el = document.getElementById("scale");
+
+        // Class vars
+
+        parent.mouse_down = false;      // Boolean keeping track of whether the mouse is down for arrow drawing
+
+        // Array of svg rect elements
+        parent.boxes = [];
+
+        // Dictionary of svg text elements labelling each box, indexed by seat_id
+        parent.box_labels = {};
+
+        parent.photo = {};
+
+        parent.scale = 0.25; // scale to draw the photo and adjust mouse coords
+
+    }
+
+    init() {
+        this.set_photo(this, this.photo_el.getAttribute("src"));
+    }
+
+    // *********************************
+    // ARROW DRAW MOUSE EVENTS
+
+    img_mouse_down(parent, e) {
+        console.log("Mouse down",e);
+        parent.mouse_down = true;
+
+        let work_rect = parent.workarea_el.getBoundingClientRect();
+
+        let x = (e.clientX - work_rect.left) / parent.scale;
+        let y = (e.clientY - work_rect.top) / parent.scale;
+
+        let rect_el = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+
+        rect_el.setAttribute("stroke","#ff0000");
+        rect_el.setAttribute("stroke-width",2/parent.scale);
+        rect_el.setAttribute("fill","none");
+        rect_el.setAttribute("x", x);
+        rect_el.setAttribute("y", y);
+        rect_el.setAttribute("width", 5);
+        rect_el.setAttribute("height", 5);
+
+        parent.svg_el.appendChild(rect_el);
+        parent.boxes.push(rect_el);
+    }
+
+    img_mouse_move(parent, e) {
+        if (parent.mouse_down) {
+            //console.log("Mouse move",e);
+            // get offsets for mouse clientX/Y position in workarea
+            let work_rect = parent.workarea_el.getBoundingClientRect();
+
+            let x = (e.clientX - work_rect.left) / parent.scale;
+            let y = (e.clientY - work_rect.top) / parent.scale;
+
+            let current_rect_index = parent.boxes.length-1;
+            let current_rect = parent.boxes[current_rect_index];
+            let width = x - current_rect.getAttribute('x');
+            let height = y - current_rect.getAttribute('y');
+            current_rect.setAttribute("width", Math.max(0,width));
+            current_rect.setAttribute("height", Math.max(0,height));
+        }
+
+    }
+
+    img_mouse_up(parent, e) {
+        console.log("Mouse up",e);
+        parent.mouse_down = false;
+        console.log("Added line index=",parent.boxes.length-1);
+        let seat_id = prompt("Enter seat_id:");
+        if (seat_id == null) {
+            parent.remove_last_box(parent);
+        } else {
+            if (parent.box_labels[seat_id] != null) {
+                alert("Error, duplicate label given to box: "+seat_id);
+                parent.img_mouse_up(parent,e);
+            } else {
+                let box = parent.boxes[parent.boxes.length-1];
+                box.setAttribute("data-seat_id",seat_id);
+                parent.add_label(parent, box,seat_id);
+            }
+        }
+
+    }
+
+    remove_last_box(parent) {
+        // Delete last line
+        if (parent.boxes.length > 0) {
+            const index = parent.boxes.length - 1;
+            const seat_id = parent.boxes[index].getAttribute("data-seat_id");
+            console.log("Removing line index",index, seat_id);
+            parent.boxes[index].remove(); // Remove from SVG display
+            if (parent.box_labels[seat_id] != null) {
+                parent.box_labels[seat_id].remove(); // Removethe label
+            }
+            parent.boxes.splice(-1); // pop reference from array
+        }
+    }
+
+    // *********************************
+    // BUTTON CLICK EVENTS
+
+    button_back(parent, e) {
+        console.log("button_back");
+        parent.remove_last_box(parent);
+    }
+
+    button_download(parent, e) {
+        console.log("button_download");
+        const file = new File(parent.make_file(parent), 'boxes.json', {
+            type: 'application/json',
+        });
+
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(file);
+
+        link.href = url;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }
+
+    button_reset(parent, e) {
+        console.log("button_reset");
+        for (let i=0; i < parent.boxes.length; i++) {
+            let box = parent.boxes[i];
+            let seat_id = box.getAttribute("data-seat_id");
+            parent.boxes[i].remove(); // Remove from SVG display
+            parent.box_labels[seat_id].remove();
+        }
+        parent.boxes = new Array();
+    }
+
+    button_left(parent, e) {
+        console.log("button left");
+        let img_name = "images/cerberus_left_empty.jpg";
+        parent.photo_el.setAttribute("src",img_name);
+        parent.set_photo(parent, img_name);
+    }
+
+    button_middle(parent, e) {
+        console.log("button middle");
+        let img_name = "images/cerberus_middle_empty.jpg";
+        parent.photo_el.setAttribute("src",img_name);
+        parent.set_photo(parent, img_name);
+    }
+
+    button_right(parent, e) {
+        console.log("button right");
+        let img_name = "images/cerberus_right_empty.jpg";
+        parent.photo_el.setAttribute("src",img_name);
+        parent.set_photo(parent, img_name);
+    }
+
+    set_photo(parent, img_name) {
+        console.log("set_photo",img_name);
+
+        // Set photo obj properties
+        parent.photo.name = img_name;
+        parent.photo.width = parent.photo_el.scrollWidth.toFixed(0);
+        parent.photo.height = parent.photo_el.scrollHeight.toFixed(0);
+
+        // set the size of the SVG element containing the boxes
+        parent.svg_el.setAttribute("width",parent.photo.width);
+        parent.svg_el.setAttribute("height",parent.photo.height);
+
+        // set the size of the SGV element containing the box labels
+        parent.overlay_el.setAttribute("width",parent.photo.width);
+        parent.overlay_el.setAttribute("height",parent.photo.height);
+
+        parent.workarea_el.style.transformOrigin = "0 0";
+        parent.workarea_el.style.transform = "scale("+parent.scale+")";
+    };
+
+    button_load(parent, e) {
+        console.log("button_load",parent.load_el.value);
+        const files = e.target.files;
+        const reader = new FileReader();
+        reader.addEventListener('load', (event) => {
+            let boxes_obj = JSON.parse(reader.result);
+            parent.load_boxes(parent, boxes_obj);
+        });
+        for (let i=0; i<files.length; i++) {
+            let f = files[i];
+            reader.readAsText(f);
+        }
+    }
+
+    button_plus(parent, e) {
+        console.log("button_plus");
+        parent.scale += 0.1;
+        parent.workarea_el.style.transform = "scale("+parent.scale+")";
+    }
+
+    button_minus(parent, e) {
+        console.log("button_minus");
+        parent.scale -= 0.2;
+        parent.scale = Math.max(parent.scale, 0.1);
+        parent.workarea_el.style.transform = "scale("+parent.scale+")";
+    }
+
+    // *********************************
+    // Load all boxes from a JSON file
+
+    load_boxes(parent, boxes_obj) {
+        console.log("load_boxes", boxes_obj);
+        let seats = boxes_obj.seats;
+        for (let i=0; i<seats.length; i++) {
+            console.log(seats[i]);
+            parent.draw_box(parent, seats[i]);
+        }
+    }
+
+    // make a file string array to be downloaded as a File
+    make_file(parent) {
+        let s = new Array();
+        s.push('{\n');
+
+        s.push('  "input_image": { "name": "'+parent.photo.name+'",\n');
+        s.push('                   "width": '+parent.photo.width+',\n');
+        s.push('                   "height": '+parent.photo.height+'\n');
+        s.push('  },\n');
+
+        // Now add seat box entries
+        s.push('  "seats": [\n');
+        for (let i=0; i<parent.boxes.length; i++) {
+            // Add each line as { x_in, y_in, x_out, y_out } (with comma after if not last line)
+            s.push(parent.make_box_json(i, parent.boxes[i])+ (i < parent.boxes.length-1 ? ',\n' : '\n'));
+        }
+        s.push('  ]\n');
+
+        s.push('}\n');
+
+        return s;
+    }
+
+    // make a text string as JSON entry for a single box
+    make_box_json(i,rect_el) {
+        let box = "    { ";
+        box += '"seat_id":  "'+rect_el.getAttribute("data-seat_id")+'", ';
+        box += '"index": '+i.toFixed(0)+', ';
+        box += '"x": '+parseFloat(rect_el.getAttribute("x")).toFixed(0)+', ';
+        box += '"y": '+parseFloat(rect_el.getAttribute("y")).toFixed(0)+', ';
+        box += '"width": '+parseFloat(rect_el.getAttribute("width")).toFixed(0)+', ';
+        box += '"height": '+parseFloat(rect_el.getAttribute("height")).toFixed(0)+' }';
+
+        return box;
+    }
+
+    // draw labelled box on screen and add to boxes array and labels dict for delete if needed.
+    draw_box(parent, box_obj) {
+        let work_rect = parent.workarea_el.getBoundingClientRect();
+
+        let rect_el = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+
+        rect_el.setAttribute("stroke","#ff0000");
+        rect_el.setAttribute("stroke-width",2/parent.scale);
+        rect_el.setAttribute("fill","none");
+        rect_el.setAttribute("x", box_obj.x);
+        rect_el.setAttribute("y", box_obj.y);
+        rect_el.setAttribute("width", box_obj.width);
+        rect_el.setAttribute("height", box_obj.height);
+        rect_el.setAttribute("data-seat_id", box_obj.seat_id);
+
+        parent.svg_el.appendChild(rect_el);
+
+        parent.add_label(parent, rect_el, box_obj.seat_id);
+
+        parent.boxes.push(rect_el);
+    }
+
+    // Display text SVG element for label, and add to box_labels dictionary for delete if needed
+    add_label(parent,box_el, seat_id) {
+        console.log("add_label", box_el, seat_id);
+        let width = box_el.getAttribute("width");
+        let height = box_el.getAttribute("height");
+        let font_size = Math.max(12/parent.scale, Math.min(width/4, 20/parent.scale));
+        let y = parseFloat(box_el.getAttribute("y"))+font_size;
+        let text_el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text_el.setAttribute("stroke","#ff0000");
+        text_el.setAttribute('fill', '#ff0000');
+        text_el.setAttribute("x", parseFloat(box_el.getAttribute("x"))+10);
+        text_el.setAttribute("y", y);
+        text_el.setAttribute("font-size",font_size.toFixed(0)+"px");
+        text_el.textContent = seat_id;
+        parent.box_labels[seat_id] = text_el; // refer to label so we can delete it if needed.
+        parent.overlay_el.appendChild(text_el);
+    }
+
+
+} // End of class ImgTransform
+</script>
+</head>
+<body onload="draw_boxes.init()">
+
+<div id="buttons">
+    <label for="button_load">Load boxes file:</label><input id="button_load" type="file" accept=".json"/>
+    <button id="button_download">Download boxes file</button>
+    <button id="button_reset">Reset</button>
+    <button id="button_back">Back</button>
+    <button id="button_left">Left camera</button>
+    <button id="button_middle">Middle camera</button>
+    <button id="button_right">Right camera</button>
+    <button id="button_minus">-</button>
+    <button id="button_plus">+</button>
+    <span id="scale"></scale>
+</div>
+
+<div id="workarea">
+    <img id="photo" src="images/cerberus_middle_empty.jpg"/>
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg" ></svg>
+    <svg id="svg_overlay" xmlns="http://www.w3.org/2000/svg" ></svg>
+</div>
+
+<script>
+    var draw_boxes = new DrawBoxes();
+</script>
+</body>
+</html>
