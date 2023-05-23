@@ -126,3 +126,4 @@ secrets
 secrets.txt
 img
 debug/.mypy_cache
+acp_id.txt
