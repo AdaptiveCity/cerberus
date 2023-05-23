@@ -7,7 +7,9 @@ import argparse
 import time
 import json
 from picamera2 import Picamera2
-from classes.face_detector import FaceDetector
+from classes.jb2328_yunet import Yunet
+from classes.jb2328_haar import HaarCascade
+# from classes.face_detector import FaceDetector
 
 def capture(img,res):
    
@@ -46,10 +48,16 @@ def main(model_name, resolution):
     picam2.configure(config)
     picam2.start()
 
-    # Instantiate face detection object here
+     # Instantiate face detection object here
     score_threshold = None  # Set the threshold if needed
-    
-    fd_model = FaceDetector(model_name, score_threshold)
+
+    #temporary if/else for debug purposes:
+    if model_name == "Yunet":
+        fd_model = Yunet(score_threshold)
+    elif model_name == "haarcascade":
+        fd_model = HaarCascade()
+    else:
+        raise ValueError("Invalid model name")
         
     while True:
         im = picam2.capture_array()
@@ -61,7 +69,8 @@ def main(model_name, resolution):
         
         faces=results["faces"]
         
-        print(results["metadata"]["model"]+" detected faces:", len(faces), " Inference duration:", duration, "seconds")
+        print(results["metadata"]["model"]+" detected faces:", len(faces), 
+              " Inference duration:", results["metadata"]["inference_time"], " seconds")
         
         if(len(faces)>0):
             print("RESULTS",results)
