@@ -105,7 +105,6 @@ The following instructions to allow SSH access to **lt1-rpiX**, via *tfc-app9* p
 
 #### Reverse SSH Guide
 
-
 Get the Pi's (**lt1-rpiX**) IP address:
 `hostname -I`
 
