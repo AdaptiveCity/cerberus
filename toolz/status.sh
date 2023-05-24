@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Find the PID of detect_faces.py
-pid=$(pgrep -f detect_faces.py)
+pid=$(pgrep -f cerberus.py)
 
 # Check if the pid exists
 if [ ! -z "$pid" ]; then
