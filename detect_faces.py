@@ -70,7 +70,7 @@ def load_locally(model_name, image_path):
             
 def main(model_name, resolution):
     last_save = 0
-    save_interval=60 #time in seconds
+    save_interval=30 #time in seconds
     
     picam2 = Picamera2()
 
