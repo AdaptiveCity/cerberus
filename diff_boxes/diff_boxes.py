@@ -99,7 +99,7 @@ def main():
         # calculate occupied 0..1
         if args["method"] == "diff_count":
             # What proportion of pixels differ by more than X
-            occupied = (image_seat > 40).sum() / (seat["width"] * seat["height"])
+            occupied = (image_seat > 25).sum() / (seat["width"] * seat["height"])
         else:
             occupied = img_brightness(image_seat)
 
