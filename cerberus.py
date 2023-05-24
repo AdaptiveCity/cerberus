@@ -70,7 +70,9 @@ def load_locally(model_name, image_path):
             
 def main(model_name, resolution):
     last_save = 0
-    save_interval=30 #time in seconds
+
+    #set saving frequency, default is 60s
+    save_interval=args.frequency #time in seconds
     
     picam2 = Picamera2()
 
@@ -123,7 +125,9 @@ if __name__ == "__main__":
                         help="Set the camera resolution. Pass width and height as two integers, e.g., '-r 1280 720'. Default is config_HQ.")
     parser.add_argument("-i","--image", type=str, default=None,
                         help="Path to the image to be processed. If this argument is provided, the script will process the provided image instead of capturing a new frame.")
-   
+    parser.add_argument("-f", "--frequency", type=int, default=60,
+                        help="Set the capture frequency duration in seconds. Default is 60.")
+    
     args = parser.parse_args()
     print("settings:",settings)
     if(args.image is None):
