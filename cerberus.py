@@ -6,9 +6,11 @@ import cv2
 import argparse
 import time
 import json
-from picamera2 import Picamera2
+
 from classes.jb2328_yunet import Yunet
 from classes.jb2328_haar import HaarCascade
+from classes.diff_boxes import DiffBoxes
+
 from settings import settings
 
 
@@ -48,29 +50,64 @@ def load_locally(model_name, image_path):
         fd_model = Yunet(score_threshold)
     elif model_name == "haarcascade":
         fd_model = HaarCascade()
+    elif model_name == "diffboxes":
+        fd_model = DiffBoxes()
     else:
         raise ValueError("Invalid model name")
-   
+
     #load the image
     im = cv2.imread(image_path)
 
     # Perform face detection here
     results = fd_model.run(im)
-    
-    faces=results["faces"]
-    
-    print(results["metadata"]["model"]+" detected faces:", len(faces), 
-            " Inference duration:", results["metadata"]["inference_time"], " seconds")
-    
-    if(len(faces)>0):
-        print("RESULTS",results)
-        capture(image_path, results)
-                
-    return
-            
-def main(model_name, resolution):
-    last_save = 0
 
+    faces=results["faces"]
+
+    print(results["metadata"]["model"]+" detected faces:", len(faces),
+            " Inference duration:", results["metadata"]["inference_time"], " seconds")
+
+    if(len(faces)>0):
+        # print("RESULTS",results)
+        capture(image_path, results)
+
+    add_boxes(im, results)
+    
+    if(args.display):
+        cv2.imshow("Result", cv2.resize(im, None,fx=0.5,fy=0.5, interpolation = cv2.INTER_AREA))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+    return
+
+# update img with boxes / labels
+def add_boxes(img, results):
+    for box in results["faces"]:
+        x = box["x"]
+        y = box["y"]
+        x1 = x + box["w"]
+        y1 = y + box["h"]
+        color = (100,100,255)
+        thickness = 4
+        try:
+            seat_id = box["seat_id"]
+        except KeyError:
+            seat_id = ''
+
+        try:
+            conf = box["confidence"]
+            confidence = f'{conf:.2f}'
+        except (KeyError, TypeError):
+            confidence = ''
+
+        # Add box to img
+        img = cv2.rectangle(img,(x,y),(x1,y1),color, thickness)
+        if seat_id != '' or confidence != '':
+            img = cv2.putText(img, f'{confidence} {seat_id}',(x+5,y-15), cv2.FONT_HERSHEY_PLAIN, 2, color, 2, cv2.LINE_AA)
+       
+def main(model_name, resolution):
+    from picamera2 import Picamera2
+
+    last_save = 0
     #set saving frequency, default is 60s
     save_interval=args.frequency #time in seconds
     
@@ -109,7 +146,7 @@ def main(model_name, resolution):
               " Inference duration:", results["metadata"]["inference_time"], " seconds")
         
         if(len(faces)>0):
-            print("RESULTS",results)
+            # print("RESULTS",results)
             current_time = time.time()
             print("SAVING IN:",save_interval- int(current_time - last_save) )
             if current_time - last_save > save_interval:
@@ -127,9 +164,15 @@ if __name__ == "__main__":
                         help="Path to the image to be processed. If this argument is provided, the script will process the provided image instead of capturing a new frame.")
     parser.add_argument("-f", "--frequency", type=int, default=60,
                         help="Set the capture frequency duration in seconds. Default is 60.")
-    
+    parser.add_argument("-d", "--display", action="store_true",
+                    help="Show image flag. If set, the image will be displayed.")
+    # parser.add_argument("-s", "--save", action="store_true",
+    #                     help="Save image flag. If set, the image will be saved.")
+
     args = parser.parse_args()
     print("settings:",settings)
+    print("optional args:",args)
+
     if(args.image is None):
         main(args.model, args.resolution)
     else:

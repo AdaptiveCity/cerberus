@@ -122,6 +122,7 @@ ENV/
 .DS_Store
 *.sqlite3
 secrets.py
+settings.py
 secrets
 secrets.txt
 img
