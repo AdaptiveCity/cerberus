@@ -84,14 +84,10 @@ def load_locally(model_name, image_path):
 
 def adjust_rotation(img, debug=False):
     
-    if(settings["orientation"]=="right"):
+    if(settings["orientation"]=="sideways"):
         if(debug):
-            print("Image is sideways, rotating right...")
+            print("Image is sideways, rotating clockwise...")
         #Rotate the image 90 degrees clockwise
-        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-    elif (settings["orientation"]=="left"):
-        if(debug):
-            print("Image is sideways, rotating left...")
         img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
     else:
         if(debug):
