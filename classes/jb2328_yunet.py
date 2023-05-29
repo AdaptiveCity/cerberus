@@ -3,9 +3,9 @@ import time
 from backends.yn_backend import YNBackend
 
 class Yunet:
-    def __init__(self, score_threshold=None):
+    def __init__(self, score_threshold):
         self.score_threshold = score_threshold
-        self.model = YNBackend(score_threshold=score_threshold)
+        self.model = YNBackend(score_threshold=self.score_threshold)
         self.results={"metadata":{"model":"Yunet"}, "faces":[]}
     
     def run(self, img):

@@ -9,7 +9,7 @@ class FaceDetector:
 
         if model_name == "Yunet":
             from backends.yn_backend import YNBackend
-            self.model = YNBackend(score_threshold=score_threshold)
+            self.model = YNBackend(score_threshold=self.score_threshold)
             self.results["metadata"]["model"]="Yunet"
             
         elif model_name == "retinaface":

@@ -42,8 +42,8 @@ def capture(img,res):
     print("img captured")
 
 def load_locally(model_name, image_path):
-      # Instantiate face detection object here
-    score_threshold = None  # Set the threshold if needed
+    # Instantiate face detection object here
+    score_threshold = settings["threshold"]  # Set the threshold if needed
 
     #temporary if/else for debug purposes:
     if model_name == "Yunet":
@@ -57,6 +57,9 @@ def load_locally(model_name, image_path):
 
     #load the image
     im = cv2.imread(image_path)
+    
+    #read settings and rotate image if necessary
+    im=adjust_rotation(im)
 
     # Perform face detection here
     results = fd_model.run(im)
@@ -78,6 +81,20 @@ def load_locally(model_name, image_path):
         cv2.destroyAllWindows()
 
     return
+
+def adjust_rotation(img):
+    
+    if(settings["orientation"]=="right"):
+        print("Image is sideways, rotating right...")
+        #Rotate the image 90 degrees clockwise
+        img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+    elif (settings["orientation"]=="left"):
+        print("Image is sideways, rotating left...")
+        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    else:
+        print("Provided image is the right orientation")
+        
+    return img
 
 # update img with boxes / labels
 def add_boxes(img, results):
@@ -123,7 +140,7 @@ def main(model_name, resolution):
     picam2.start()
 
      # Instantiate face detection object here
-    score_threshold = None  # Set the threshold if needed
+    score_threshold = settings["threshold"] # Set the threshold if needed
 
     #temporary if/else for debug purposes:
     if model_name == "Yunet":
@@ -136,6 +153,9 @@ def main(model_name, resolution):
     while True:
        
         im = picam2.capture_array()
+        
+        #read settings and rotate image if necessary
+        im=adjust_rotation(im)
 
         # Perform face detection here
         results = fd_model.run(im)
@@ -156,14 +176,14 @@ def main(model_name, resolution):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Face detection script using Picamera2.")
-    parser.add_argument("-m", "--model", type=str, default="haarcascade",
-                        help="Select the face detection model. Default is 'haarcascade'.")
+    parser.add_argument("-m", "--model", type=str, default=settings["model"],
+                        help="Select the face detection model. Default is "+str(settings["model"])+".")
     parser.add_argument("-r", "--resolution", nargs=2, type=int, default=None,
                         help="Set the camera resolution. Pass width and height as two integers, e.g., '-r 1280 720'. Default is config_HQ.")
     parser.add_argument("-i","--image", type=str, default=None,
                         help="Path to the image to be processed. If this argument is provided, the script will process the provided image instead of capturing a new frame.")
-    parser.add_argument("-f", "--frequency", type=int, default=60,
-                        help="Set the capture frequency duration in seconds. Default is 60.")
+    parser.add_argument("-f", "--frequency", type=int, default=settings["frequency"],
+                        help="Set the capture frequency duration in seconds. Default is "+str(settings["frequency"])+".")
     parser.add_argument("-d", "--display", action="store_true",
                     help="Show image flag. If set, the image will be displayed.")
     # parser.add_argument("-s", "--save", action="store_true",
