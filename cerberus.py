@@ -59,7 +59,7 @@ def load_locally(model_name, image_path):
     im = cv2.imread(image_path)
     
     #read settings and rotate image if necessary
-    im=adjust_rotation(im)
+    im=adjust_rotation(im, debug=True)
 
     # Perform face detection here
     results = fd_model.run(im)
@@ -82,17 +82,20 @@ def load_locally(model_name, image_path):
 
     return
 
-def adjust_rotation(img):
+def adjust_rotation(img, debug=False):
     
     if(settings["orientation"]=="right"):
-        print("Image is sideways, rotating right...")
+        if(debug):
+            print("Image is sideways, rotating right...")
         #Rotate the image 90 degrees clockwise
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
     elif (settings["orientation"]=="left"):
-        print("Image is sideways, rotating left...")
+        if(debug):
+            print("Image is sideways, rotating left...")
         img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
     else:
-        print("Provided image is the right orientation")
+        if(debug):
+            print("Provided image is the right orientation")
         
     return img
 
