@@ -19,7 +19,7 @@ def capture(img,res):
     #if it's not a string then a photo, save with custom name
     if not type(img) is str:        
         #get the timestamp from when the inference was done
-        timestamp = res["metadata"]["acp_ts"]
+        timestamp = float(res["metadata"]["acp_ts"])
         formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(timestamp))
         camera_name=settings["acp_id"]
         filename=camera_name+"_"+formatted_time+"_"+str(int(timestamp))
