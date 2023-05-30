@@ -18,10 +18,11 @@ def capture(img,res):
     #check that we're not duplicating a passed image
     #if it's not a string then a photo, save with custom name
     if not type(img) is str:        
-        timestamp = time.time()
+        #get the timestamp from when the inference was done
+        timestamp = res["metadata"]["acp_ts"]
         formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(timestamp))
-
-        filename="cerberus_alpha_"+formatted_time+"_"+str(int(timestamp))
+        camera_name=settings["acp_id"]
+        filename=camera_name+"_"+formatted_time+"_"+str(int(timestamp))
         # Save the current frame as an image
         image_name = "./img/"+filename+".jpg"
         # Using cv2.imwrite() method
@@ -83,6 +84,8 @@ def load_locally(model_name, image_path):
     return
 
 def adjust_rotation(img, debug=False):
+    
+    # print(settings["position"]!="M",settings["position"])
     
     if(settings["position"]!="M"):
         if(debug):
