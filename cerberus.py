@@ -84,7 +84,7 @@ def load_locally(model_name, image_path):
 
 def adjust_rotation(img, debug=False):
     
-    if(settings["orientation"]=="sideways"):
+    if(settings["position"]!="M"):
         if(debug):
             print("Image is sideways, rotating clockwise...")
         #Rotate the image 90 degrees clockwise
