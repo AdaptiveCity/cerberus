@@ -6,15 +6,19 @@ import cv2
 import argparse
 import time
 import json
+import importlib
 
 from classes.jb2328_yunet import Yunet
 from classes.jb2328_haar import HaarCascade
 from classes.diff_boxes import DiffBoxes
 
-from settings import settings
+from settings.default import settings
 
+# ####################################################################### #
+# run_detect - the execution loop used for normal sensor operation        #
+# ####################################################################### #
 
-def capture(img,res):
+def save_img_and_json(img,res):
     #check that we're not duplicating a passed image
     #if it's not a string then a photo, save with custom name
     if not type(img) is str:        
@@ -40,42 +44,81 @@ def capture(img,res):
         print(f'Wrote JSON to {outfile}')
 
             # cur.save(image_name)
-    print("img captured")
+    print("img recorded")
 
-def load_locally(model_name, image_path):
-    # Instantiate face detection object here
-    score_threshold = settings["threshold"]  # Set the threshold if needed
+def run_detect(fd_model, settings):
+    from picamera2 import Picamera2
 
-    #temporary if/else for debug purposes:
-    if model_name == "Yunet":
-        fd_model = Yunet(score_threshold)
-    elif model_name == "haarcascade":
-        fd_model = HaarCascade()
-    elif model_name == "diffboxes":
-        fd_model = DiffBoxes()
+    last_save = 0
+    #set saving frequency, default is 60s
+    save_interval = settings["frequency"] #time in seconds
+    
+    picam2 = Picamera2()
+
+    if settings["resolution"]:
+        width, height = settings["resolution"]
+        config = picam2.create_still_configuration(main={"size": (width, height)})
     else:
-        raise ValueError("Invalid model name")
+        config = picam2.create_still_configuration()
+
+    picam2.configure(config)
+    picam2.start()
+
+    while True:
+
+        im = picam2.capture_array()
+
+        #read settings and rotate image if necessary
+        if settings["position"] != "M":
+            im = cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+        # Perform face detection here
+        results = fd_model.run(im)
+
+        faces=results["faces"]
+
+        print(results["metadata"]["model"]+" detected faces:", len(faces),
+              " Inference duration:", results["metadata"]["inference_time"], " seconds")
+
+        if(len(faces)>0):
+            # print("RESULTS",results)
+            current_time = time.time()
+            print("SAVING IN:",save_interval- int(current_time - last_save) )
+            if current_time - last_save > save_interval:
+                save_img_and_json(im, results)
+                last_save = current_time
+
+# ####################################################################### #
+# detect_local_image - called when run with -i image                      #
+# ####################################################################### #
+      
+def detect_local_image(fd_model, settings, image_path):
+    """
+    Called if -i parameter is given with an image path.
+    Will run the chosen detector on that image, optionally display picture overlaid with detect boxes.
+    """
 
     #load the image
     im = cv2.imread(image_path)
     
     #read settings and rotate image if necessary
-    im=adjust_rotation(im, debug=True)
+    # if settings["position"] != "M":
+    #     im = cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     # Perform face detection here
     results = fd_model.run(im)
 
-    faces=results["faces"]
+    faces = results["faces"]
 
     print(results["metadata"]["model"]+" detected faces:", len(faces),
             " Inference duration:", results["metadata"]["inference_time"], " seconds")
 
     if(len(faces)>0):
         # print("RESULTS",results)
-        capture(image_path, results)
+        save_img_and_json(image_path, results)
 
     add_boxes(im, results)
-    
+
     if(args.display):
         cv2.imshow("Result", cv2.resize(im, None,fx=0.5,fy=0.5, interpolation = cv2.INTER_AREA))
         cv2.waitKey(0)
@@ -83,23 +126,12 @@ def load_locally(model_name, image_path):
 
     return
 
-def adjust_rotation(img, debug=False):
-    
-    # print(settings["position"]!="M",settings["position"])
-    
-    if(settings["position"]!="M"):
-        if(debug):
-            print("Image is sideways, rotating clockwise...")
-        #Rotate the image 90 degrees clockwise
-        img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    else:
-        if(debug):
-            print("Provided image is the right orientation")
-        
-    return img
-
 # update img with boxes / labels
 def add_boxes(img, results):
+    """
+    Given an image and a results containing the detection boxes,
+    overlays the boxes and seat_id's onto the image
+    """
     for box in results["faces"]:
         x = box["x"]
         y = box["y"]
@@ -123,61 +155,46 @@ def add_boxes(img, results):
         if seat_id != '' or confidence != '':
             img = cv2.putText(img, f'{confidence} {seat_id}',(x+5,y-15), cv2.FONT_HERSHEY_PLAIN, 2, color, 2, cv2.LINE_AA)
        
-def main(model_name, resolution):
-    from picamera2 import Picamera2
+# ####################################################################### #
+# main - run from command line                                            #
+# ####################################################################### #
 
-    last_save = 0
-    #set saving frequency, default is 60s
-    save_interval=args.frequency #time in seconds
-    
-    picam2 = Picamera2()
-
-    if resolution:
-        width, height = resolution
-        config = picam2.create_still_configuration(main={"size": (width, height)})
-    else:
-        config = picam2.create_still_configuration()
-
-    picam2.configure(config)
-    picam2.start()
-
-     # Instantiate face detection object here
-    score_threshold = settings["threshold"] # Set the threshold if needed
-
-    #temporary if/else for debug purposes:
-    if model_name == "Yunet":
-        fd_model = Yunet(score_threshold)
+def get_model(model_name, settings):
+    """
+    Given a string name and settings dict, return an instantiated detect model
+    """
+    fd_model = None
+    model_name = model_name.lower()
+    if model_name == "yunet":
+        fd_model = Yunet(settings)
     elif model_name == "haarcascade":
-        fd_model = HaarCascade()
+        fd_model = HaarCascade(settings)
+    elif model_name == "diffboxes":
+        fd_model = DiffBoxes(settings)
     else:
         raise ValueError("Invalid model name")
-        
-    while True:
-       
-        im = picam2.capture_array()
-        
-        #read settings and rotate image if necessary
-        im=adjust_rotation(im)
+    return fd_model
 
-        # Perform face detection here
-        results = fd_model.run(im)
+# def adjust_rotation(img, debug=False):
+    
+#     # print(settings["position"]!="M",settings["position"])
+    
+#     if(settings["position"]!="M"):
+#         if(debug):
+#             print("Image is sideways, rotating clockwise...")
+#         #Rotate the image 90 degrees clockwise
+#         img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+#     else:
+#         if(debug):
+#             print("Provided image is the right orientation")
         
-        faces=results["faces"]
-        
-        print(results["metadata"]["model"]+" detected faces:", len(faces), 
-              " Inference duration:", results["metadata"]["inference_time"], " seconds")
-        
-        if(len(faces)>0):
-            # print("RESULTS",results)
-            current_time = time.time()
-            print("SAVING IN:",save_interval- int(current_time - last_save) )
-            if current_time - last_save > save_interval:
-                capture(im, results)
-                last_save = current_time
-                
+#     return img
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Face detection script using Picamera2.")
+
+    parser.add_argument("-s", "--settings", type=str, default="default",
+                        help='Filename in settings/ (without.py) for settings. Default "default".')
     parser.add_argument("-m", "--model", type=str, default=settings["model"],
                         help="Select the face detection model. Default is "+str(settings["model"])+".")
     parser.add_argument("-r", "--resolution", nargs=2, type=int, default=None,
@@ -186,17 +203,42 @@ if __name__ == "__main__":
                         help="Path to the image to be processed. If this argument is provided, the script will process the provided image instead of capturing a new frame.")
     parser.add_argument("-f", "--frequency", type=int, default=settings["frequency"],
                         help="Set the capture frequency duration in seconds. Default is "+str(settings["frequency"])+".")
+    parser.add_argument("-t", "--threshold", type=float, default=None,
+                        help="Set threshold used by detect model. Overrides settings value.")
     parser.add_argument("-d", "--display", action="store_true",
                     help="Show image flag. If set, the image will be displayed.")
     # parser.add_argument("-s", "--save", action="store_true",
     #                     help="Save image flag. If set, the image will be saved.")
 
     args = parser.parse_args()
+
+    # Load settings
+    if args.settings is not None:
+        # use -s argument
+        settings = importlib.import_module("settings."+args.settings).settings
+
     print("settings:",settings)
     print("optional args:",args)
 
-    if(args.image is None):
-        main(args.model, args.resolution)
+    # Add command line args to settings
+    if args.threshold is not None:
+        settings["threshold"] = args.threshold
+
+    if args.frequency is not None:
+        settings["frequency"] = args.frequency
+
+    if args.resolution is not None:
+        settings["resolution"] = args.resolution
+
+    # Get the model
+    if args.model is not None:
+        fd_model = get_model(args.model, settings)
     else:
-        print("loading locally")
-        load_locally(args.model, args.image)
+        fd_model = get_model(settings.model, settings)
+
+    # Either loop on camera, or run for single image
+    if args.image is None:
+        run_detect(fd_model, settings)
+    else:
+        print(f'detecting local image {args.image}')
+        detect_local_image(fd_model, settings, args.image)

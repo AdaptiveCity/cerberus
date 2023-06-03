@@ -2,7 +2,7 @@ import cv2
 import time
 
 class HaarCascade:
-    def __init__(self):
+    def __init__(self, settings):
         self.model = cv2.CascadeClassifier("./backends/haarcascade_frontalface_default.xml")
         self.results={"metadata":{"model":"haarcascade"}, "faces":[]}
 

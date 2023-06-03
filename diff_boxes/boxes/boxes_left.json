@@ -1,0 +1,585 @@
+{
+    "input_image": {
+        "name": "images/cerberus_left_empty.jpg",
+        "width": 3040,
+        "height": 4056
+    },
+    "seats": [
+        {
+            "seat_id": "LA1",
+            "index": 0,
+            "x": 287,
+            "y": 3312,
+            "width": 328,
+            "height": 440
+        },
+        {
+            "seat_id": "LA2",
+            "index": 1,
+            "x": 663,
+            "y": 3300,
+            "width": 308,
+            "height": 416
+        },
+        {
+            "seat_id": "LA3",
+            "index": 2,
+            "x": 1019,
+            "y": 3280,
+            "width": 332,
+            "height": 424
+        },
+        {
+            "seat_id": "LA4",
+            "index": 3,
+            "x": 1411,
+            "y": 3244,
+            "width": 308,
+            "height": 420
+        },
+        {
+            "seat_id": "LA5",
+            "index": 4,
+            "x": 1747,
+            "y": 3200,
+            "width": 324,
+            "height": 416
+        },
+        {
+            "seat_id": "LA6",
+            "index": 5,
+            "x": 2119,
+            "y": 3144,
+            "width": 368,
+            "height": 420
+        },
+        {
+            "seat_id": "LB1",
+            "index": 6,
+            "x": 391,
+            "y": 2732,
+            "width": 268,
+            "height": 360
+        },
+        {
+            "seat_id": "LB2",
+            "index": 7,
+            "x": 699,
+            "y": 2692,
+            "width": 284,
+            "height": 372
+        },
+        {
+            "seat_id": "LB3",
+            "index": 8,
+            "x": 1051,
+            "y": 2664,
+            "width": 280,
+            "height": 380
+        },
+        {
+            "seat_id": "LB4",
+            "index": 9,
+            "x": 1395,
+            "y": 2628,
+            "width": 300,
+            "height": 388
+        },
+        {
+            "seat_id": "LB5",
+            "index": 10,
+            "x": 1727,
+            "y": 2592,
+            "width": 284,
+            "height": 388
+        },
+        {
+            "seat_id": "LB6",
+            "index": 11,
+            "x": 2055,
+            "y": 2556,
+            "width": 288,
+            "height": 380
+        },
+        {
+            "seat_id": "LC1",
+            "index": 12,
+            "x": 475,
+            "y": 2184,
+            "width": 268,
+            "height": 336
+        },
+        {
+            "seat_id": "LC2",
+            "index": 13,
+            "x": 783,
+            "y": 2152,
+            "width": 268,
+            "height": 352
+        },
+        {
+            "seat_id": "LC3",
+            "index": 14,
+            "x": 1099,
+            "y": 2128,
+            "width": 260,
+            "height": 352
+        },
+        {
+            "seat_id": "LC4",
+            "index": 15,
+            "x": 1399,
+            "y": 2108,
+            "width": 268,
+            "height": 332
+        },
+        {
+            "seat_id": "LC5",
+            "index": 16,
+            "x": 1703,
+            "y": 2088,
+            "width": 272,
+            "height": 320
+        },
+        {
+            "seat_id": "LC6",
+            "index": 17,
+            "x": 2011,
+            "y": 2060,
+            "width": 256,
+            "height": 316
+        },
+        {
+            "seat_id": "LD1",
+            "index": 18,
+            "x": 551,
+            "y": 1752,
+            "width": 264,
+            "height": 276
+        },
+        {
+            "seat_id": "LD2",
+            "index": 19,
+            "x": 851,
+            "y": 1732,
+            "width": 268,
+            "height": 276
+        },
+        {
+            "seat_id": "LD3",
+            "index": 20,
+            "x": 1139,
+            "y": 1708,
+            "width": 252,
+            "height": 276
+        },
+        {
+            "seat_id": "LD4",
+            "index": 21,
+            "x": 1419,
+            "y": 1720,
+            "width": 248,
+            "height": 240
+        },
+        {
+            "seat_id": "LD5",
+            "index": 22,
+            "x": 1699,
+            "y": 1672,
+            "width": 228,
+            "height": 268
+        },
+        {
+            "seat_id": "LD6",
+            "index": 23,
+            "x": 1959,
+            "y": 1668,
+            "width": 236,
+            "height": 256
+        },
+        {
+            "seat_id": "LE1",
+            "index": 24,
+            "x": 663,
+            "y": 1396,
+            "width": 224,
+            "height": 240
+        },
+        {
+            "seat_id": "LE2",
+            "index": 25,
+            "x": 923,
+            "y": 1392,
+            "width": 212,
+            "height": 220
+        },
+        {
+            "seat_id": "LE3",
+            "index": 26,
+            "x": 1167,
+            "y": 1376,
+            "width": 224,
+            "height": 216
+        },
+        {
+            "seat_id": "LE4",
+            "index": 27,
+            "x": 1443,
+            "y": 1360,
+            "width": 188,
+            "height": 220
+        },
+        {
+            "seat_id": "LE5",
+            "index": 28,
+            "x": 1687,
+            "y": 1348,
+            "width": 204,
+            "height": 212
+        },
+        {
+            "seat_id": "LE6",
+            "index": 29,
+            "x": 1919,
+            "y": 1340,
+            "width": 228,
+            "height": 220
+        },
+        {
+            "seat_id": "LF1",
+            "index": 30,
+            "x": 751,
+            "y": 1108,
+            "width": 188,
+            "height": 196
+        },
+        {
+            "seat_id": "LF2",
+            "index": 31,
+            "x": 967,
+            "y": 1076,
+            "width": 184,
+            "height": 228
+        },
+        {
+            "seat_id": "LF3",
+            "index": 32,
+            "x": 1207,
+            "y": 1060,
+            "width": 180,
+            "height": 220
+        },
+        {
+            "seat_id": "LF4",
+            "index": 33,
+            "x": 1431,
+            "y": 1060,
+            "width": 172,
+            "height": 212
+        },
+        {
+            "seat_id": "LF5",
+            "index": 34,
+            "x": 1671,
+            "y": 1052,
+            "width": 176,
+            "height": 204
+        },
+        {
+            "seat_id": "LF6",
+            "index": 35,
+            "x": 1883,
+            "y": 1048,
+            "width": 180,
+            "height": 204
+        },
+        {
+            "seat_id": "LG1",
+            "index": 36,
+            "x": 811,
+            "y": 848,
+            "width": 184,
+            "height": 200
+        },
+        {
+            "seat_id": "LG2",
+            "index": 37,
+            "x": 1023,
+            "y": 844,
+            "width": 164,
+            "height": 188
+        },
+        {
+            "seat_id": "LG3",
+            "index": 38,
+            "x": 1215,
+            "y": 832,
+            "width": 188,
+            "height": 192
+        },
+        {
+            "seat_id": "LG4",
+            "index": 39,
+            "x": 1435,
+            "y": 824,
+            "width": 172,
+            "height": 188
+        },
+        {
+            "seat_id": "LG5",
+            "index": 40,
+            "x": 1655,
+            "y": 868,
+            "width": 160,
+            "height": 144
+        },
+        {
+            "seat_id": "LG6",
+            "index": 41,
+            "x": 1855,
+            "y": 856,
+            "width": 172,
+            "height": 148
+        },
+        {
+            "seat_id": "LH1",
+            "index": 42,
+            "x": 847,
+            "y": 704,
+            "width": 188,
+            "height": 116
+        },
+        {
+            "seat_id": "LH2",
+            "index": 43,
+            "x": 1055,
+            "y": 688,
+            "width": 164,
+            "height": 128
+        },
+        {
+            "seat_id": "LH3",
+            "index": 44,
+            "x": 1247,
+            "y": 688,
+            "width": 168,
+            "height": 120
+        },
+        {
+            "seat_id": "LH4",
+            "index": 45,
+            "x": 1443,
+            "y": 692,
+            "width": 164,
+            "height": 108
+        },
+        {
+            "seat_id": "LH5",
+            "index": 46,
+            "x": 1639,
+            "y": 680,
+            "width": 152,
+            "height": 128
+        },
+        {
+            "seat_id": "LH6",
+            "index": 47,
+            "x": 1831,
+            "y": 680,
+            "width": 160,
+            "height": 128
+        },
+        {
+            "seat_id": "LI1",
+            "index": 48,
+            "x": 935,
+            "y": 544,
+            "width": 124,
+            "height": 124
+        },
+        {
+            "seat_id": "LI2",
+            "index": 49,
+            "x": 1095,
+            "y": 552,
+            "width": 136,
+            "height": 100
+        },
+        {
+            "seat_id": "LI3",
+            "index": 50,
+            "x": 1287,
+            "y": 540,
+            "width": 128,
+            "height": 108
+        },
+        {
+            "seat_id": "LI4",
+            "index": 51,
+            "x": 1455,
+            "y": 532,
+            "width": 136,
+            "height": 116
+        },
+        {
+            "seat_id": "LI5",
+            "index": 52,
+            "x": 1635,
+            "y": 544,
+            "width": 132,
+            "height": 96
+        },
+        {
+            "seat_id": "LI6",
+            "index": 53,
+            "x": 1807,
+            "y": 548,
+            "width": 136,
+            "height": 96
+        },
+        {
+            "seat_id": "LJ1",
+            "index": 54,
+            "x": 967,
+            "y": 428,
+            "width": 136,
+            "height": 88
+        },
+        {
+            "seat_id": "LJ2",
+            "index": 55,
+            "x": 1123,
+            "y": 416,
+            "width": 132,
+            "height": 104
+        },
+        {
+            "seat_id": "LJ3",
+            "index": 56,
+            "x": 1295,
+            "y": 424,
+            "width": 128,
+            "height": 88
+        },
+        {
+            "seat_id": "LJ4",
+            "index": 57,
+            "x": 1463,
+            "y": 424,
+            "width": 132,
+            "height": 84
+        },
+        {
+            "seat_id": "LJ5",
+            "index": 58,
+            "x": 1623,
+            "y": 420,
+            "width": 112,
+            "height": 92
+        },
+        {
+            "seat_id": "LJ6",
+            "index": 59,
+            "x": 1787,
+            "y": 424,
+            "width": 132,
+            "height": 84
+        },
+        {
+            "seat_id": "LK1",
+            "index": 60,
+            "x": 1003,
+            "y": 324,
+            "width": 124,
+            "height": 84
+        },
+        {
+            "seat_id": "LK2",
+            "index": 61,
+            "x": 1159,
+            "y": 308,
+            "width": 116,
+            "height": 84
+        },
+        {
+            "seat_id": "LK3",
+            "index": 62,
+            "x": 1311,
+            "y": 312,
+            "width": 120,
+            "height": 80
+        },
+        {
+            "seat_id": "LK4",
+            "index": 63,
+            "x": 1463,
+            "y": 304,
+            "width": 120,
+            "height": 96
+        },
+        {
+            "seat_id": "LK5",
+            "index": 64,
+            "x": 1611,
+            "y": 312,
+            "width": 124,
+            "height": 92
+        },
+        {
+            "seat_id": "LK6",
+            "index": 65,
+            "x": 1755,
+            "y": 328,
+            "width": 140,
+            "height": 76
+        },
+        {
+            "seat_id": "LL1",
+            "index": 66,
+            "x": 1047,
+            "y": 232,
+            "width": 96,
+            "height": 68
+        },
+        {
+            "seat_id": "LL2",
+            "index": 67,
+            "x": 1171,
+            "y": 228,
+            "width": 116,
+            "height": 64
+        },
+        {
+            "seat_id": "LL3",
+            "index": 68,
+            "x": 1331,
+            "y": 228,
+            "width": 92,
+            "height": 64
+        },
+        {
+            "seat_id": "LL4",
+            "index": 69,
+            "x": 1475,
+            "y": 228,
+            "width": 92,
+            "height": 60
+        },
+        {
+            "seat_id": "LL5",
+            "index": 70,
+            "x": 1619,
+            "y": 224,
+            "width": 84,
+            "height": 72
+        },
+        {
+            "seat_id": "LL6",
+            "index": 71,
+            "x": 1751,
+            "y": 232,
+            "width": 100,
+            "height": 60
+        }
+    ]
+}
