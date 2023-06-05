@@ -21,7 +21,7 @@ from settings.default import settings
 def save_img_and_json(img,res):
     #check that we're not duplicating a passed image
     #if it's not a string then a photo, save with custom name
-    if not type(img) is str:        
+    if not type(img) is str:
         #get the timestamp from when the inference was done
         timestamp = float(res["metadata"]["acp_ts"])
         formatted_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(timestamp))
@@ -36,7 +36,7 @@ def save_img_and_json(img,res):
     else:
         #save the json file with with an existing filename but different extension
         image_name = img
-        
+
     #save fd results
     outfile = image_name[:-4]+".json"
     with open(outfile, 'w') as f:
@@ -52,7 +52,7 @@ def run_detect(fd_model, settings):
     last_save = 0
     #set saving frequency, default is 60s
     save_interval = settings["frequency"] #time in seconds
-    
+
     picam2 = Picamera2()
 
     if settings["resolution"]:
@@ -91,7 +91,7 @@ def run_detect(fd_model, settings):
 # ####################################################################### #
 # detect_local_image - called when run with -i image                      #
 # ####################################################################### #
-      
+
 def detect_local_image(fd_model, settings, image_path):
     """
     Called if -i parameter is given with an image path.
@@ -100,7 +100,7 @@ def detect_local_image(fd_model, settings, image_path):
 
     #load the image
     im = cv2.imread(image_path)
-    
+
     #read settings and rotate image if necessary
     # if settings["position"] != "M":
     #     im = cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -154,7 +154,7 @@ def add_boxes(img, results):
         img = cv2.rectangle(img,(x,y),(x1,y1),color, thickness)
         if seat_id != '' or confidence != '':
             img = cv2.putText(img, f'{confidence} {seat_id}',(x+5,y-15), cv2.FONT_HERSHEY_PLAIN, 2, color, 2, cv2.LINE_AA)
-       
+
 # ####################################################################### #
 # main - run from command line                                            #
 # ####################################################################### #
@@ -176,9 +176,9 @@ def get_model(model_name, settings):
     return fd_model
 
 # def adjust_rotation(img, debug=False):
-    
+
 #     # print(settings["position"]!="M",settings["position"])
-    
+
 #     if(settings["position"]!="M"):
 #         if(debug):
 #             print("Image is sideways, rotating clockwise...")
@@ -187,15 +187,15 @@ def get_model(model_name, settings):
 #     else:
 #         if(debug):
 #             print("Provided image is the right orientation")
-        
+
 #     return img
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Face detection script using Picamera2.")
 
-    parser.add_argument("-s", "--settings", type=str, default="default",
+    parser.add_argument("-s", "--settings", type=str, default=None,
                         help='Filename in settings/ (without.py) for settings. Default "default".')
-    parser.add_argument("-m", "--model", type=str, default=settings["model"],
+    parser.add_argument("-m", "--model", type=str, default=None,
                         help="Select the face detection model. Default is "+str(settings["model"])+".")
     parser.add_argument("-r", "--resolution", nargs=2, type=int, default=None,
                         help="Set the camera resolution. Pass width and height as two integers, e.g., '-r 1280 720'. Default is config_HQ.")
@@ -215,10 +215,11 @@ if __name__ == "__main__":
     # Load settings
     if args.settings is not None:
         # use -s argument
+        print(f'Loading settings from settings/{args.settings}.py')
         settings = importlib.import_module("settings."+args.settings).settings
-
-    print("settings:",settings)
-    print("optional args:",args)
+    else:
+        print("Loading settings from settings/default.py")
+        from settings.default import settings
 
     # Add command line args to settings
     if args.threshold is not None:
@@ -230,11 +231,14 @@ if __name__ == "__main__":
     if args.resolution is not None:
         settings["resolution"] = args.resolution
 
-    # Get the model
     if args.model is not None:
-        fd_model = get_model(args.model, settings)
-    else:
-        fd_model = get_model(settings.model, settings)
+        settings["model"] = args.model
+
+    print("settings:",settings)
+    print("optional args:",args)
+
+    # Get the model
+    fd_model = get_model(settings["model"], settings)
 
     # Either loop on camera, or run for single image
     if args.image is None:
